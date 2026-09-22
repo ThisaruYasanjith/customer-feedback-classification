@@ -33,7 +33,8 @@ def build_rnn_model():
         # Convert token IDs into dense word representations
         Embedding(
             input_dim=VOCAB_SIZE,
-            output_dim=EMBEDDING_DIM
+            output_dim=EMBEDDING_DIM,
+             mask_zero=True
         ),
 
         # First recurrent layer
