@@ -185,3 +185,36 @@ print("=" * 60)
 print()
 print("Best model saved to:")
 print(best_model_path)
+
+
+print()
+print("=" * 60)
+print("RNN validation prediction diagnostics")
+print("=" * 60)
+
+best_model = tf.keras.models.load_model(best_model_path)
+
+val_probabilities = best_model.predict(
+    X_val,
+    batch_size=BATCH_SIZE,
+    verbose=1
+)
+
+val_predictions = np.argmax(val_probabilities, axis=1)
+
+print()
+print("Actual validation class distribution:")
+actual_classes, actual_counts = np.unique(y_val, return_counts=True)
+
+for label, count in zip(actual_classes, actual_counts):
+    print(f"  Label {label}: {count}")
+
+print()
+print("Predicted validation class distribution:")
+predicted_classes, predicted_counts = np.unique(
+    val_predictions,
+    return_counts=True
+)
+
+for label, count in zip(predicted_classes, predicted_counts):
+    print(f"  Label {label}: {count}")
