@@ -109,3 +109,79 @@ rnn_model.compile(
 
 print()
 print("RNN model compiled successfully.")
+
+
+# ==================================================
+# 9. Training configuration
+# ==================================================
+
+BATCH_SIZE = 32
+EPOCHS = 20
+
+
+# ==================================================
+# 10. Callbacks
+# ==================================================
+
+best_model_path = MODEL_DIR / "rnn_model.keras"
+
+early_stopping = tf.keras.callbacks.EarlyStopping(
+    monitor="val_loss",
+    patience=3,
+    restore_best_weights=True,
+    verbose=1
+)
+
+reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
+    monitor="val_loss",
+    factor=0.5,
+    patience=2,
+    min_lr=1e-6,
+    verbose=1
+)
+
+model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+    filepath=best_model_path,
+    monitor="val_loss",
+    save_best_only=True,
+    verbose=1
+)
+
+
+# ==================================================
+# 11. Train RNN
+# ==================================================
+
+print()
+print("=" * 60)
+print("Starting RNN training...")
+print("=" * 60)
+
+history = rnn_model.fit(
+    X_train,
+    y_train,
+    validation_data=(X_val, y_val),
+    epochs=EPOCHS,
+    batch_size=BATCH_SIZE,
+    class_weight=class_weights,
+    callbacks=[
+        early_stopping,
+        reduce_lr,
+        model_checkpoint
+    ],
+    verbose=1
+)
+
+
+# ==================================================
+# 12. Training completed
+# ==================================================
+
+print()
+print("=" * 60)
+print("RNN training completed.")
+print("=" * 60)
+
+print()
+print("Best model saved to:")
+print(best_model_path)
