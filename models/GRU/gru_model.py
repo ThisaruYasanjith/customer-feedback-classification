@@ -18,6 +18,7 @@ def build_gru_model(
 			tf.keras.layers.Embedding(
 				input_dim=vocab_size,
 				output_dim=embedding_dim,
+				mask_zero=True,
 			),
 			tf.keras.layers.GRU(gru_units),
 			tf.keras.layers.Dropout(dropout_rate),
