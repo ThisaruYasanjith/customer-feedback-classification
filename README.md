@@ -55,7 +55,8 @@ customer-feedback-classification/
 ├── .gitignore                     # Git ignore rules for cached models and venv
 │
 ├── data/                          # Dataset directory
-│   ├── raw/                       # Original raw Kaggle CSV dataset (hotel_reviews.csv)
+│   ├── raw/                       # Original raw Kaggle CSV dataset
+│   │   └── hotel_reviews.csv      # Raw hotel reviews CSV dataset
 │   └── processed/                 # Tokenized & padded numpy arrays & saved preprocessing objects
 │       ├── X_train_pad.npy        # Training input sequences (4895, 200)
 │       ├── X_val_pad.npy          # Validation input sequences (1049, 200)
@@ -66,25 +67,22 @@ customer-feedback-classification/
 │       ├── tokenizer.pkl          # Saved fitted Keras Tokenizer
 │       └── class_weights.pkl      # Balanced class weight dictionary
 │
-├── common/                        # Reusable Python modules for data loading, preprocessing, & evaluation
-│   ├── data_loader.py             # Data loading routines
-│   ├── preprocessing.py          # Text cleaning and sequence padding functions
-│   ├── tokenizer.py              # Tokenizer fitting and transformation logic
-│   └── evaluation.py             # Standardized model evaluation & metric calculation functions
-│
 ├── notebooks/                     # Exploratory Data Analysis & data pipeline
 │   └── 01_data_exploration.ipynb  # EDA, rating distribution, text cleaning, and data serialization
 │
 ├── models/                        # Individual deep learning model implementations
-│   ├── SimpleRNN/                 # Simple Recurrent Neural Network
+│   ├── RNN/                       # Simple Recurrent Neural Network
 │   │   ├── rnn_model.py           # SimpleRNN model definition
 │   │   ├── train_rnn.py           # Training script for SimpleRNN
-│   │   ├── rnn_training.ipynb     # Interactive RNN notebook
-│   │   └── results/               # Saved RNN metrics and history
+│   │   ├── rnn_training.ipynb     # Interactive SimpleRNN notebook
+│   │   └── results/               # Saved RNN evaluation metrics and history
+│   │       ├── rnn_results.json   # Saved RNN test evaluation results (JSON)
+│   │       └── rnn_training_history.pkl # Saved RNN training history
 │   ├── LSTM/                      # Long Short-Term Memory Network
 │   │   ├── lstm_model.py          # LSTM model definition
 │   │   ├── lstm_training.ipynb    # Interactive LSTM notebook
-│   │   └── lstm-metrics.ipynb     # LSTM evaluation & metric plots
+│   │   ├── lstm-metrics.ipynb     # LSTM evaluation & metric plots
+│   │   └── lstm_review_classifier.keras # Saved trained LSTM model checkpoint
 │   ├── GRU/                       # Gated Recurrent Unit Network
 │   │   ├── gru_model.py           # GRU model definition
 │   │   └── gru_training.ipynb     # Interactive GRU notebook
@@ -95,11 +93,15 @@ customer-feedback-classification/
 ├── comparison/                    # Master cross-model comparison
 │   └── model_comparison.ipynb     # Comparative evaluation across all models (Acc, F1, ROC-AUC, Latency)
 │
-└── models_saved/                  # Saved serialized model artifacts (.keras format)
-    ├── rnn_model.keras            # Trained SimpleRNN model weight checkpoint
-    ├── lstm_model.keras           # Trained LSTM model weight checkpoint
+└── models_saved/                  # Saved serialized model artifacts & history pickles
+    ├── cnn_history.pkl            # Saved 1D-CNN training history
+    ├── cnn_model.keras            # Trained 1D-CNN model weight checkpoint
+    ├── gru_history.pkl            # Saved GRU training history
     ├── gru_model.keras            # Trained GRU model weight checkpoint
-    └── cnn_model.keras            # Trained 1D-CNN model weight checkpoint
+    ├── lstm_history.pkl           # Saved LSTM training history
+    ├── lstm_model.keras           # Trained LSTM model weight checkpoint
+    ├── rnn_history.pkl            # Saved SimpleRNN training history
+    └── rnn_model.keras            # Trained SimpleRNN model weight checkpoint
 ```
 
 ---
