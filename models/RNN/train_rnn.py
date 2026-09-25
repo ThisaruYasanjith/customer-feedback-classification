@@ -1,3 +1,12 @@
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    roc_auc_score,
+    confusion_matrix
+)
+
 from pathlib import Path
 import pickle
 import numpy as np
@@ -218,3 +227,78 @@ predicted_classes, predicted_counts = np.unique(
 
 for label, count in zip(predicted_classes, predicted_counts):
     print(f"  Label {label}: {count}")
+
+
+    print()
+print("=" * 60)
+print("FINAL RNN TEST EVALUATION")
+print("=" * 60)
+
+# Load the best saved RNN model
+best_model = tf.keras.models.load_model(best_model_path)
+
+# Generate probability predictions
+test_probabilities = best_model.predict(
+    X_test,
+    batch_size=BATCH_SIZE,
+    verbose=1
+)
+
+# Convert probabilities to predicted class labels
+test_predictions = np.argmax(
+    test_probabilities,
+    axis=1
+)
+
+# Calculate classification metrics
+test_accuracy = accuracy_score(
+    y_test,
+    test_predictions
+)
+
+test_precision = precision_score(
+    y_test,
+    test_predictions,
+    average="weighted",
+    zero_division=0
+)
+
+test_recall = recall_score(
+    y_test,
+    test_predictions,
+    average="weighted",
+    zero_division=0
+)
+
+test_f1 = f1_score(
+    y_test,
+    test_predictions,
+    average="weighted",
+    zero_division=0
+)
+
+# Calculate multiclass ROC-AUC using predicted probabilities
+test_roc_auc = roc_auc_score(
+    y_test,
+    test_probabilities,
+    multi_class="ovr",
+    average="weighted"
+)
+
+# Calculate confusion matrix
+test_confusion_matrix = confusion_matrix(
+    y_test,
+    test_predictions
+)
+
+print()
+print("RNN Test Results:")
+print(f"Accuracy : {test_accuracy:.4f}")
+print(f"Precision: {test_precision:.4f}")
+print(f"Recall   : {test_recall:.4f}")
+print(f"F1-score : {test_f1:.4f}")
+print(f"ROC-AUC  : {test_roc_auc:.4f}")
+
+print()
+print("Confusion Matrix:")
+print(test_confusion_matrix)
