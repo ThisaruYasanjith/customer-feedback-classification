@@ -1,3 +1,5 @@
+import json
+
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -181,6 +183,15 @@ history = rnn_model.fit(
     verbose=1
 )
 
+history_path = RESULT_DIR / "rnn_training_history.pkl"
+
+with open(history_path, "wb") as f:
+    pickle.dump(history.history, f)
+
+print()
+print("RNN training history saved to:")
+print(history_path)
+
 
 # ==================================================
 # 12. Training completed
@@ -302,3 +313,29 @@ print(f"ROC-AUC  : {test_roc_auc:.4f}")
 print()
 print("Confusion Matrix:")
 print(test_confusion_matrix)
+
+
+# Save RNN evaluation results
+rnn_results = {
+    "model": "Bidirectional RNN",
+    "accuracy": float(test_accuracy),
+    "precision_weighted": float(test_precision),
+    "recall_weighted": float(test_recall),
+    "f1_weighted": float(test_f1),
+    "roc_auc_weighted_ovr": float(test_roc_auc),
+    "confusion_matrix": test_confusion_matrix.tolist(),
+    "class_mapping": {
+        "0": "Poor",
+        "1": "Average",
+        "2": "Good"
+    }
+}
+
+results_path = RESULT_DIR / "rnn_results.json"
+
+with open(results_path, "w") as f:
+    json.dump(rnn_results, f, indent=4)
+
+print()
+print("RNN evaluation results saved to:")
+print(results_path)
