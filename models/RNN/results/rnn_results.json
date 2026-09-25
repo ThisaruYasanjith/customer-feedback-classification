@@ -1,0 +1,30 @@
+{
+    "model": "Bidirectional RNN",
+    "accuracy": 0.7295238095238096,
+    "precision_weighted": 0.7344507934357337,
+    "recall_weighted": 0.7295238095238096,
+    "f1_weighted": 0.7278126521521932,
+    "roc_auc_weighted_ovr": 0.8702207265122653,
+    "confusion_matrix": [
+        [
+            158,
+            17,
+            11
+        ],
+        [
+            57,
+            131,
+            78
+        ],
+        [
+            39,
+            82,
+            477
+        ]
+    ],
+    "class_mapping": {
+        "0": "Poor",
+        "1": "Average",
+        "2": "Good"
+    }
+}

@@ -1,0 +1,341 @@
+import json
+
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    roc_auc_score,
+    confusion_matrix
+)
+
+from pathlib import Path
+import pickle
+import numpy as np
+import tensorflow as tf
+
+from rnn_model import build_rnn_model
+
+
+# ==================================================
+# 1. Project paths
+# ==================================================
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+MODEL_DIR = PROJECT_ROOT / "models_saved"
+RESULT_DIR = PROJECT_ROOT / "models" / "RNN" / "results"
+
+
+# ==================================================
+# 2. Create required folders
+# ==================================================
+
+MODEL_DIR.mkdir(exist_ok=True)
+RESULT_DIR.mkdir(exist_ok=True)
+
+
+# ==================================================
+# 3. Load processed datasets
+# ==================================================
+
+X_train = np.load(PROCESSED_DIR / "X_train_pad.npy")
+X_val = np.load(PROCESSED_DIR / "X_val_pad.npy")
+X_test = np.load(PROCESSED_DIR / "X_test_pad.npy")
+
+y_train = np.load(PROCESSED_DIR / "y_train.npy")
+y_val = np.load(PROCESSED_DIR / "y_val.npy")
+y_test = np.load(PROCESSED_DIR / "y_test.npy")
+
+
+# ==================================================
+# 4. Load tokenizer
+# ==================================================
+
+with open(PROCESSED_DIR / "tokenizer.pkl", "rb") as f:
+    tokenizer = pickle.load(f)
+
+
+# ==================================================
+# 5. Load RNN class weights
+# ==================================================
+
+with open(PROCESSED_DIR / "class_weights.pkl", "rb") as f:
+    class_weights = pickle.load(f)
+
+
+# ==================================================
+# 6. Display loaded data information
+# ==================================================
+
+print("RNN data loaded successfully.")
+print()
+
+print("Training data:", X_train.shape)
+print("Validation data:", X_val.shape)
+print("Test data:", X_test.shape)
+
+print()
+
+print("Training labels:", y_train.shape)
+print("Validation labels:", y_val.shape)
+print("Test labels:", y_test.shape)
+
+print()
+
+print("RNN class weights:")
+for label, weight in class_weights.items():
+    print(f"  Label {label}: {weight:.4f}")
+
+print()
+
+print("Tokenizer vocabulary size:", len(tokenizer.word_index))
+
+
+# ==================================================
+# 7. Build RNN model
+# ==================================================
+
+rnn_model = build_rnn_model()
+
+print()
+print("RNN model created successfully.")
+print()
+
+rnn_model.summary()
+
+
+# ==================================================
+# 8. Compile RNN model
+# ==================================================
+
+rnn_model.compile(
+    optimizer=tf.keras.optimizers.Adam(
+        learning_rate=0.001
+    ),
+    loss="sparse_categorical_crossentropy",
+    metrics=["accuracy"]
+)
+
+print()
+print("RNN model compiled successfully.")
+
+
+# ==================================================
+# 9. Training configuration
+# ==================================================
+
+BATCH_SIZE = 32
+EPOCHS = 20
+
+
+# ==================================================
+# 10. Callbacks
+# ==================================================
+
+best_model_path = MODEL_DIR / "rnn_model.keras"
+
+early_stopping = tf.keras.callbacks.EarlyStopping(
+    monitor="val_loss",
+    patience=3,
+    restore_best_weights=True,
+    verbose=1
+)
+
+reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
+    monitor="val_loss",
+    factor=0.5,
+    patience=2,
+    min_lr=1e-6,
+    verbose=1
+)
+
+model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+    filepath=best_model_path,
+    monitor="val_loss",
+    save_best_only=True,
+    verbose=1
+)
+
+
+# ==================================================
+# 11. Train RNN
+# ==================================================
+
+print()
+print("=" * 60)
+print("Starting RNN training...")
+print("=" * 60)
+
+history = rnn_model.fit(
+    X_train,
+    y_train,
+    validation_data=(X_val, y_val),
+    epochs=EPOCHS,
+    batch_size=BATCH_SIZE,
+    class_weight=class_weights,
+    callbacks=[
+        early_stopping,
+        reduce_lr,
+        model_checkpoint
+    ],
+    verbose=1
+)
+
+history_path = RESULT_DIR / "rnn_training_history.pkl"
+
+with open(history_path, "wb") as f:
+    pickle.dump(history.history, f)
+
+print()
+print("RNN training history saved to:")
+print(history_path)
+
+
+# ==================================================
+# 12. Training completed
+# ==================================================
+
+print()
+print("=" * 60)
+print("RNN training completed.")
+print("=" * 60)
+
+print()
+print("Best model saved to:")
+print(best_model_path)
+
+
+print()
+print("=" * 60)
+print("RNN validation prediction diagnostics")
+print("=" * 60)
+
+best_model = tf.keras.models.load_model(best_model_path)
+
+val_probabilities = best_model.predict(
+    X_val,
+    batch_size=BATCH_SIZE,
+    verbose=1
+)
+
+val_predictions = np.argmax(val_probabilities, axis=1)
+
+print()
+print("Actual validation class distribution:")
+actual_classes, actual_counts = np.unique(y_val, return_counts=True)
+
+for label, count in zip(actual_classes, actual_counts):
+    print(f"  Label {label}: {count}")
+
+print()
+print("Predicted validation class distribution:")
+predicted_classes, predicted_counts = np.unique(
+    val_predictions,
+    return_counts=True
+)
+
+for label, count in zip(predicted_classes, predicted_counts):
+    print(f"  Label {label}: {count}")
+
+
+    print()
+print("=" * 60)
+print("FINAL RNN TEST EVALUATION")
+print("=" * 60)
+
+# Load the best saved RNN model
+best_model = tf.keras.models.load_model(best_model_path)
+
+# Generate probability predictions
+test_probabilities = best_model.predict(
+    X_test,
+    batch_size=BATCH_SIZE,
+    verbose=1
+)
+
+# Convert probabilities to predicted class labels
+test_predictions = np.argmax(
+    test_probabilities,
+    axis=1
+)
+
+# Calculate classification metrics
+test_accuracy = accuracy_score(
+    y_test,
+    test_predictions
+)
+
+test_precision = precision_score(
+    y_test,
+    test_predictions,
+    average="weighted",
+    zero_division=0
+)
+
+test_recall = recall_score(
+    y_test,
+    test_predictions,
+    average="weighted",
+    zero_division=0
+)
+
+test_f1 = f1_score(
+    y_test,
+    test_predictions,
+    average="weighted",
+    zero_division=0
+)
+
+# Calculate multiclass ROC-AUC using predicted probabilities
+test_roc_auc = roc_auc_score(
+    y_test,
+    test_probabilities,
+    multi_class="ovr",
+    average="weighted"
+)
+
+# Calculate confusion matrix
+test_confusion_matrix = confusion_matrix(
+    y_test,
+    test_predictions
+)
+
+print()
+print("RNN Test Results:")
+print(f"Accuracy : {test_accuracy:.4f}")
+print(f"Precision: {test_precision:.4f}")
+print(f"Recall   : {test_recall:.4f}")
+print(f"F1-score : {test_f1:.4f}")
+print(f"ROC-AUC  : {test_roc_auc:.4f}")
+
+print()
+print("Confusion Matrix:")
+print(test_confusion_matrix)
+
+
+# Save RNN evaluation results
+rnn_results = {
+    "model": "Bidirectional RNN",
+    "accuracy": float(test_accuracy),
+    "precision_weighted": float(test_precision),
+    "recall_weighted": float(test_recall),
+    "f1_weighted": float(test_f1),
+    "roc_auc_weighted_ovr": float(test_roc_auc),
+    "confusion_matrix": test_confusion_matrix.tolist(),
+    "class_mapping": {
+        "0": "Poor",
+        "1": "Average",
+        "2": "Good"
+    }
+}
+
+results_path = RESULT_DIR / "rnn_results.json"
+
+with open(results_path, "w") as f:
+    json.dump(rnn_results, f, indent=4)
+
+print()
+print("RNN evaluation results saved to:")
+print(results_path)
