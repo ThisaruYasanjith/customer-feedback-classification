@@ -5,10 +5,10 @@
 [![Dataset](https://img.shields.io/badge/Kaggle-Hotel%20Reviews-blue)](https://www.kaggle.com/datasets/juhibhojani/hotel-reviews)
 
 ## 📌 Project Overview
-This repository contains the official implementation for **SE4050 – Deep Learning (2026)** Assignment 1. The objective of this project is to solve a real-world Natural Language Processing (NLP) problem—classifying customer hotel reviews into sentiment ratings—using multiple deep learning model architectures.
+This repository contains the official implementation for **SE4050 – Deep Learning (2026).**  The objective of this project is to solve a real-world Natural Language Processing (NLP) problem classifying customer hotel reviews into sentiment ratings using multiple deep learning model architectures.
 
 We implement, train, evaluate, and critically compare **four distinct deep learning architectures**:
-1. **Simple Recurrent Neural Network (SimpleRNN)** (Bidirectional + Stacked SimpleRNN)
+1. **Recurrent Neural Network (RNN)** (Bidirectional + Stacked SimpleRNN)
 2. **Long Short-Term Memory (LSTM)**
 3. **Gated Recurrent Unit (GRU)**
 4. **1D Convolutional Neural Network (1D-CNN)**
@@ -190,7 +190,4 @@ All models are evaluated on the unseen test dataset (`data/processed/X_test_pad.
 
 ---
 
-## 👥 Contributors & Acknowledgments
-- **Course**: SE4050 – Deep Learning (2026), BSc (Hons) in Information Technology
-- **Institution**: Sri Lanka Institute of Information Technology (SLIIT)
-- **Group Contributions**: Details regarding individual team member roles and commit history are tracked via GitHub commit logs and documented in `Members.txt`.
+
