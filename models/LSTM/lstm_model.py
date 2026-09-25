@@ -5,6 +5,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 MAX_LENGTH = 200
+CONFIDENCE_THRESHOLD = 0.6
 
 review_class_labels = [ "poor", "average", "good" ]
 
@@ -23,6 +24,9 @@ def predict(text):
     X = preprocess([text])
     probabilities = model.predict(X)[0]
     predicted_class_idx = np.argmax(probabilities)
+    probability = probabilities[predicted_class_idx]
+    if probability < CONFIDENCE_THRESHOLD:
+        return ( "unknown", )
     return review_class_labels[predicted_class_idx], probabilities[predicted_class_idx]
 
 while True:
