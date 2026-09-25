@@ -7,3 +7,5 @@ data/raw/
 
 models_saved/
 .ipynb_checkpoints/
+config.bat
+node_modules
