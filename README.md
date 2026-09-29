@@ -8,7 +8,7 @@
 This repository contains the official implementation for **SE4050 – Deep Learning (2026).** The objective of this project is to solve a real-world Natural Language Processing (NLP) problem: classifying customer hotel reviews into sentiment ratings using multiple deep learning model architectures.
 
 We implement, train, evaluate, and critically compare **four distinct deep learning architectures**:
-1. **Recurrent Neural Network (RNN)** (Bidirectional + Stacked SimpleRNN)
+1. **Recurrent Neural Network (RNN)** (Bidirectional + Stacked RNN)
 2. **Long Short-Term Memory (LSTM)** (Stacked Bidirectional LSTM)
 3. **Gated Recurrent Unit (GRU)** (Gated Recurrent Unit Classifier)
 4. **1D Convolutional Neural Network (1D-CNN)** (Temporal Convolutional Feature Extractor)
@@ -71,10 +71,10 @@ customer-feedback-classification/
 │   └── 01_data_exploration.ipynb  # EDA, rating distribution, text cleaning, and data serialization
 │
 ├── models/                        # Individual deep learning model implementations
-│   ├── RNN/                       # Simple Recurrent Neural Network
-│   │   ├── rnn_model.py           # SimpleRNN model architecture definition
-│   │   ├── train_rnn.py           # Training & evaluation script for SimpleRNN
-│   │   ├── rnn_training.ipynb     # Interactive SimpleRNN notebook
+│   ├── RNN/                       # Recurrent Neural Network
+│   │   ├── rnn_model.py           # RNN model architecture definition
+│   │   ├── train_rnn.py           # Training & evaluation script for RNN
+│   │   ├── rnn_training.ipynb     # Interactive RNN notebook
 │   │   └── results/               # Saved RNN evaluation metrics and history
 │   │       ├── rnn_results.json   # Saved RNN test evaluation results (JSON)
 │   │       └── rnn_training_history.pkl # Saved RNN training history
@@ -102,8 +102,8 @@ customer-feedback-classification/
     ├── gru_model.keras            # Trained GRU model weight checkpoint
     ├── lstm_history.pkl           # Saved LSTM training history
     ├── lstm_model.keras           # Trained LSTM model weight checkpoint
-    ├── rnn_history.pkl            # Saved SimpleRNN training history
-    ├── rnn_model.keras            # Trained SimpleRNN model weight checkpoint
+    ├── rnn_history.pkl            # Saved RNN training history
+    ├── rnn_model.keras            # Trained RNN model weight checkpoint
     └── gru/                       # GRU evaluation artifacts
         ├── gru_model.keras        # Trained GRU checkpoint
         ├── gru_history.pkl        # GRU training history
